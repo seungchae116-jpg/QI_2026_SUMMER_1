@@ -6,6 +6,12 @@
       "runtimeExecutable": "powershell",
       "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "server.ps1"],
       "port": 8080
+    },
+    {
+      "name": "team-page",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "../QI_2026_SUMMER_TEMA_G/server.ps1"],
+      "port": 8099
     }
   ]
 }
