@@ -3,22 +3,193 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>킹왕짱 멋진 웹페이지</title>
+<title>Avomatic — 아보카도 숙성도 판별</title>
+<meta name="description" content="사진 한 장으로 아보카도 숙성 단계를 판별하고, 보관법에 맞춰 언제 먹으면 좋은지 알려주는 서비스" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥑</text></svg>" />
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <canvas id="sky"></canvas>
+<div class="bg-decor" aria-hidden="true"></div>
 
-  <header class="hero">
-    <h1>킹왕짱 멋진 웹페이지</h1>
-    <p class="tagline">공룡들이 하늘을 날고, 운석이 쏟아지는 간지나는 세계</p>
-  </header>
+<header class="nav">
+  <div class="nav-inner">
+    <span class="logo">🥑 Avomatic</span>
+    <a class="nav-cta" href="#uploader">지금 판별하기</a>
+  </div>
+</header>
 
-  <section class="info">
-    <p>화면을 클릭하면 운석이 하나 더 떨어져요 ☄️</p>
-    <p id="score">맞은 공룡 수: 0</p>
+<main>
+  <section class="hero">
+    <div class="hero-text">
+      <span class="eyebrow">사진 한 장으로 아는 숙성도</span>
+      <h1>오늘 먹어도 될까,<br />아니면 <em>기다려야</em> 할까?</h1>
+      <p class="hero-sub">
+        아보카도 사진을 올리면 숙성 단계를 판별하고, <strong>당신의 보관 방법과 섭취 계획</strong>에 맞춰
+        언제 먹으면 가장 좋은지 알려드려요.
+      </p>
+      <a href="#uploader" class="btn-primary">사진으로 판별하기 ↓</a>
+      <div class="hero-stats">
+        <div><strong>5단계</strong><span>숙성도 분류</span></div>
+        <div><strong>95%+</strong><span>1단계 이내 오차 목표</span></div>
+        <div><strong>478개체</strong><span>근거 논문 학습 데이터</span></div>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="avocado-blob">
+        <span class="avocado-emoji">🥑</span>
+      </div>
+    </div>
   </section>
 
-  <script src="script.js"></script>
+  <section class="persona-section">
+    <div class="persona-card">
+      <p class="persona-quote">
+        "목요일에 산 아보카도, 주말 토스트에 맞을까? 눌러보라는데 '적당히 무른'게 대체 뭔지 모르겠다.
+        결국 하나는 덜 익어서 못 먹고, 하나는 까맣게 상해서 버린다."
+      </p>
+      <p class="persona-name">— 지현, 29세 · 1인 가구 · 주 1회 장보기</p>
+      <p class="persona-moment">핵심 순간은 <strong>살 때가 아니라, 사놓고 며칠 뒤 냉장고를 열었을 때</strong>예요.</p>
+    </div>
+  </section>
+
+  <section class="uploader-section" id="uploader">
+    <h2>사진을 올려보세요</h2>
+    <p class="section-sub">자연광 아래에서 아보카도 전체가 보이도록 찍으면 더 정확해요.</p>
+
+    <div class="uploader-grid">
+      <div class="dropzone-card">
+        <label class="dropzone" id="dropzone" for="fileInput">
+          <div id="dropzoneEmpty" class="dropzone-empty">
+            <span class="dropzone-icon">📷</span>
+            <p><strong>클릭</strong>하거나 이미지를 <strong>드래그</strong>하세요</p>
+            <span class="dropzone-hint">JPG · PNG</span>
+          </div>
+          <img id="previewImg" class="preview-img hidden" alt="업로드한 아보카도 사진" />
+        </label>
+        <input type="file" id="fileInput" accept="image/*" hidden />
+      </div>
+
+      <div class="controls-card">
+        <div class="control-group">
+          <span class="control-label">보관 방법</span>
+          <div class="pill-group" id="storageGroup">
+            <button class="pill active" type="button" data-storage="fridge" data-coef="2.3">🧊 냉장 (10°C)</button>
+            <button class="pill" type="button" data-storage="room" data-coef="1">🌤️ 실온 (20°C)</button>
+            <button class="pill" type="button" data-storage="ambient" data-coef="0.5">☀️ 여름 상온 (28°C~)</button>
+          </div>
+          <p class="control-note">사진만으로는 보관 온도를 알 수 없어요. "며칠 남았는지"를 정확히 계산하려고 여쭤봐요.</p>
+        </div>
+
+        <button class="btn-analyze" id="analyzeBtn" disabled>🔍 숙성도 분석하기</button>
+        <p class="analyze-status" id="analyzeStatus"></p>
+      </div>
+    </div>
+
+    <div class="result-card hidden" id="resultCard">
+      <div class="result-warning hidden" id="lowConfidenceWarning">
+        ⚠️ <span id="warningText">신뢰도가 낮아요. 자연광에서 아보카도 전체가 나오도록 다시 찍어보세요.</span>
+      </div>
+
+      <div class="result-top">
+        <div class="stage-badge">
+          <span class="stage-emoji" id="stageEmoji">🥑</span>
+          <div class="stage-text">
+            <span class="stage-label" id="stageLabel">-</span>
+            <span class="stage-desc" id="stageDesc">-</span>
+          </div>
+        </div>
+        <div class="confidence-ring" id="confidenceRing">
+          <span class="confidence-value" id="confidenceValue">-</span>
+          <span class="confidence-caption">신뢰도</span>
+        </div>
+      </div>
+
+      <div class="result-main-stat">
+        <span class="main-stat-label">언제 먹으면 좋을까요?</span>
+        <span class="main-stat-value" id="etaText">-</span>
+      </div>
+
+      <div class="result-details">
+        <div class="detail-item">
+          <span class="detail-label">🧊 보관 조언</span>
+          <p id="storageAdvice">-</p>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">🍽️ 추천 활용</span>
+          <p id="usageAdvice">-</p>
+        </div>
+      </div>
+
+      <p class="result-disclaimer">
+        이 예측은 <strong>겉모습 기반 숙성 단계 추정</strong>이며 실제 맛·당도를 측정하지 않아요.
+        학습 데이터는 스튜디오 조명 환경에서 촬영되어, 실제 주방 조명에서는 정확도가 달라질 수 있어요.
+      </p>
+    </div>
+  </section>
+
+  <section class="value-section">
+    <h2>왜 Avomatic인가요</h2>
+    <p class="section-sub">"지금 몇 단계인지"는 이미 다들 알려줘요. 우리는 세 가지가 달라요.</p>
+    <div class="value-grid">
+      <div class="value-card">
+        <span class="value-icon">📅</span>
+        <h3>상태가 아니라 계획에 답해요</h3>
+        <p>"3단계입니다" 대신 "냉장 보관하면 토요일에 딱 맞아요"라고 말해요.
+        보관 온도별 숙성 속도 차이(10°C는 20°C보다 약 2.3배 느려요)를 논문 실측 계수로 환산해요.</p>
+      </div>
+      <div class="value-card">
+        <span class="value-icon">🙋</span>
+        <h3>보관법은 추측하지 않고 물어봐요</h3>
+        <p>저장 조건은 사진만으로 알 수 없어요. 같은 단계라면 냉장이든 실온이든 겉모습이 같거든요.
+        이 값을 무시하면 "며칠 남음" 추정이 부정확해져요.</p>
+      </div>
+      <div class="value-card">
+        <span class="value-icon">🔍</span>
+        <h3>한계를 숨기지 않아요</h3>
+        <p>학습 데이터는 스튜디오 조명에서 촬영됐고, 모델은 외관상 단계를 예측할 뿐
+        실제 "맛"을 측정하지 않아요. 결과 화면과 아래 섹션에 그대로 밝혀요.</p>
+      </div>
+    </div>
+    <p class="value-source">근거: Foods(2024) 논문 및 공개 데이터셋(478개체 · 14,710장, CC BY 4.0). 숙성 단계와 남은 일수는 선형 관계이며(R²≈0.95), 계수는 보관 온도에 따라 달라져요.</p>
+  </section>
+
+  <section class="risk-section">
+    <h2>알려진 한계 (Known Risks)</h2>
+    <p class="section-sub">정직한 신뢰 표시를 위해, 확인된 리스크와 대응 방식을 그대로 공개해요.</p>
+    <div class="risk-table-wrap">
+      <table class="risk-table">
+        <thead>
+          <tr><th>리스크</th><th>대응</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>학습 이미지가 스튜디오 조명(5500K 고정) → 실제 부엌 사진에서 성능 저하</td>
+            <td>색·조명 augmentation 공격적 적용. 결과 화면에 신뢰도 경고.</td>
+          </tr>
+          <tr>
+            <td>라벨이 시계열 문맥을 반영 → 단일 이미지 모델의 성능 상한 존재</td>
+            <td>88.8% 미달을 실패로 규정하지 않음. 1단계 이내 오차를 주 지표로.</td>
+          </tr>
+          <tr>
+            <td>원본 데이터가 이상기후 배치(과숙·풍상 손상 포함)</td>
+            <td>논문 Discussion 인용해 일반화 한계로 문서화.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="risk-note">
+      또한 본 서비스는 <strong>실제 맛·당도를 예측하지 않아요.</strong> 데이터셋에 관능·당도 라벨이 없어서,
+      예측 대상은 어디까지나 <strong>외관상 숙성 단계</strong>예요. 그리고 Storage Group(보관 조건)은
+      추론 시점에 모델이 알 수 없는 값이라, 모델 입력이 아닌 <strong>후처리 파라미터</strong>로만 사용해요.
+    </p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>근거 논문: Foods (2026) · 공개 데이터셋 478개체 · 14,710장 (CC BY 4.0)</p>
+  <p class="disclaimer">Avomatic은 외관상 숙성 단계를 추정하는 프로토타입이며, 실제 맛·당도를 측정하지 않습니다.</p>
+</footer>
+
+<script src="script.js"></script>
 </body>
 </html>
