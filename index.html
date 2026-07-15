@@ -15,48 +15,55 @@
   <div class="nav-inner">
     <span class="logo">🥑 Avomatic</span>
     <div class="nav-links">
-      <a class="nav-account-link" href="#account" id="navAccountLink">로그인</a>
+      <button class="nav-account-link" id="navAccountLink" type="button">로그인</button>
       <a class="nav-cta" href="#uploader">지금 판별하기</a>
     </div>
   </div>
 </header>
 
-<main>
-  <section class="account-section" id="account">
-    <div class="account-card">
-      <div id="authLoggedOut">
-        <div class="account-tabs">
-          <button class="account-tab active" data-tab="login" type="button">로그인</button>
-          <button class="account-tab" data-tab="signup" type="button">회원가입</button>
-        </div>
-        <form id="loginForm" class="account-form">
-          <input type="email" id="loginEmail" placeholder="이메일" autocomplete="email" required />
-          <input type="password" id="loginPassword" placeholder="비밀번호" autocomplete="current-password" required />
-          <button type="submit" class="btn-primary">로그인</button>
-          <p class="account-error hidden" id="loginError"></p>
-        </form>
-        <form id="signupForm" class="account-form hidden">
-          <input type="text" id="signupName" placeholder="이름 (선택)" autocomplete="name" />
-          <input type="email" id="signupEmail" placeholder="이메일" autocomplete="email" required />
-          <input type="password" id="signupPassword" placeholder="비밀번호 (8자 이상)" autocomplete="new-password" required />
-          <button type="submit" class="btn-primary">회원가입</button>
-          <p class="account-error hidden" id="signupError"></p>
-        </form>
-      </div>
+<div class="modal-overlay hidden" id="authModal">
+  <div class="modal-card account-card">
+    <button class="modal-close" id="modalCloseBtn" type="button" aria-label="닫기">×</button>
+    <div class="account-tabs">
+      <button class="account-tab active" data-tab="login" type="button">로그인</button>
+      <button class="account-tab" data-tab="signup" type="button">회원가입</button>
+    </div>
+    <form id="loginForm" class="account-form">
+      <input type="email" id="loginEmail" placeholder="이메일" autocomplete="email" required />
+      <input type="password" id="loginPassword" placeholder="비밀번호" autocomplete="current-password" required />
+      <button type="submit" class="btn-primary">로그인</button>
+      <p class="account-error hidden" id="loginError"></p>
+    </form>
+    <form id="signupForm" class="account-form hidden">
+      <input type="text" id="signupName" placeholder="이름 (선택)" autocomplete="name" />
+      <input type="email" id="signupEmail" placeholder="이메일" autocomplete="email" required />
+      <input type="password" id="signupPassword" placeholder="비밀번호 (8자 이상)" autocomplete="new-password" required />
+      <button type="submit" class="btn-primary">회원가입</button>
+      <p class="account-error hidden" id="signupError"></p>
+    </form>
+  </div>
+</div>
 
-      <div id="authLoggedIn" class="hidden">
-        <div class="account-profile">
-          <span class="account-email" id="profileEmail"></span>
-          <button class="account-logout" id="logoutBtn" type="button">로그아웃</button>
-        </div>
-        <div class="control-group">
-          <span class="control-label">내가 가장 좋아하는 아보카도 상태</span>
-          <div class="pill-group" id="favoriteStyleGroup"></div>
-          <p class="account-saved hidden" id="favoriteSaved">저장됐어요 ✓</p>
-        </div>
-      </div>
+<main>
+  <section class="auth-gate" id="authGate">
+    <div class="auth-gate-card">
+      <span class="auth-gate-emoji">🥑</span>
+      <h1>Avomatic을 시작하려면<br />로그인이 필요해요</h1>
+      <p>사진으로 숙성도를 판별하고, 내가 좋아하는 아보카도 상태를 저장해두려면 먼저 로그인해주세요.</p>
+      <button class="btn-primary" id="authGateBtn" type="button">로그인 / 회원가입</button>
     </div>
   </section>
+
+  <div id="appContent" class="hidden">
+    <div class="profile-bar">
+      <span class="account-email" id="profileEmail"></span>
+      <div class="profile-bar-style">
+        <span class="control-label">내가 가장 좋아하는 아보카도 상태</span>
+        <div class="pill-group" id="favoriteStyleGroup"></div>
+        <p class="account-saved hidden" id="favoriteSaved">저장됐어요 ✓</p>
+      </div>
+      <button class="account-logout" id="logoutBtn" type="button">로그아웃</button>
+    </div>
 
   <section class="hero">
     <div class="hero-text">
@@ -222,6 +229,7 @@
       추론 시점에 모델이 알 수 없는 값이라, 모델 입력이 아닌 <strong>후처리 파라미터</strong>로만 사용해요.
     </p>
   </section>
+  </div>
 </main>
 
 <footer class="site-footer">

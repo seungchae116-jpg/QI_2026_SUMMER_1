@@ -10,8 +10,11 @@ const FAVORITE_STYLES = [
 ];
 
 const navAccountLink = document.getElementById("navAccountLink");
-const loggedOutView = document.getElementById("authLoggedOut");
-const loggedInView = document.getElementById("authLoggedIn");
+const authModal = document.getElementById("authModal");
+const modalCloseBtn = document.getElementById("modalCloseBtn");
+const authGate = document.getElementById("authGate");
+const authGateBtn = document.getElementById("authGateBtn");
+const appContent = document.getElementById("appContent");
 const loginForm = document.getElementById("loginForm");
 const signupForm = document.getElementById("signupForm");
 const loginError = document.getElementById("loginError");
@@ -20,6 +23,33 @@ const profileEmail = document.getElementById("profileEmail");
 const logoutBtn = document.getElementById("logoutBtn");
 const favoriteStyleGroup = document.getElementById("favoriteStyleGroup");
 const favoriteSaved = document.getElementById("favoriteSaved");
+
+function openModal() {
+  authModal.classList.remove("hidden");
+}
+
+function closeModal() {
+  authModal.classList.add("hidden");
+  loginError.classList.add("hidden");
+  signupError.classList.add("hidden");
+}
+
+navAccountLink.addEventListener("click", () => {
+  if (getToken()) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    openModal();
+  }
+});
+
+authGateBtn.addEventListener("click", openModal);
+modalCloseBtn.addEventListener("click", closeModal);
+authModal.addEventListener("click", (e) => {
+  if (e.target === authModal) closeModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !authModal.classList.contains("hidden")) closeModal();
+});
 
 document.querySelectorAll(".account-tab").forEach((tab) => {
   tab.addEventListener("click", () => {
@@ -89,16 +119,17 @@ async function saveFavoriteStyle(styleKey) {
 }
 
 function showLoggedIn(user) {
-  loggedOutView.classList.add("hidden");
-  loggedInView.classList.remove("hidden");
+  authGate.classList.add("hidden");
+  appContent.classList.remove("hidden");
+  closeModal();
   profileEmail.textContent = user.email;
   navAccountLink.textContent = "내 계정";
-  if (user.favorite_style) markActiveStyle(user.favorite_style);
+  markActiveStyle(user.favorite_style || null);
 }
 
 function showLoggedOut() {
-  loggedOutView.classList.remove("hidden");
-  loggedInView.classList.add("hidden");
+  authGate.classList.remove("hidden");
+  appContent.classList.add("hidden");
   navAccountLink.textContent = "로그인";
 }
 

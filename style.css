@@ -391,18 +391,122 @@ section h2 {
 }
 
 .nav-account-link {
+  border: none;
+  background: none;
   color: var(--green-deep);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
 }
 
 .nav-account-link:hover {
   text-decoration: underline;
 }
 
-.account-section {
-  padding: 2rem 0 0.5rem;
+/* ---------- auth gate ---------- */
+.auth-gate {
+  display: flex;
+  justify-content: center;
+  padding: 4.5rem 0;
+}
+
+.auth-gate-card {
+  max-width: 460px;
+  text-align: center;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  padding: 3rem 2.2rem;
+}
+
+.auth-gate-emoji {
+  font-size: 3.4rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.auth-gate-card h1 {
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  line-height: 1.35;
+  margin: 0 0 0.9rem;
+  color: var(--ink);
+}
+
+.auth-gate-card p {
+  color: var(--ink-soft);
+  margin: 0 0 1.6rem;
+  line-height: 1.6;
+}
+
+.auth-gate-card .btn-primary {
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* ---------- auth modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(43, 38, 24, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.modal-card {
+  position: relative;
+  width: 100%;
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.9rem;
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  color: var(--ink);
+}
+
+/* ---------- profile bar ---------- */
+.profile-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  padding: 1rem 1.4rem;
+  margin: 1.5rem 0;
+}
+
+.profile-bar-style {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.profile-bar-style .control-label {
+  margin-bottom: 0;
+  font-size: 0.85rem;
+}
+
+.profile-bar .account-logout {
+  margin-left: auto;
 }
 
 .account-card {
@@ -469,13 +573,6 @@ section h2 {
   color: var(--coral-dark);
   font-size: 0.85rem;
   margin: 0;
-}
-
-.account-profile {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.2rem;
 }
 
 .account-email {
