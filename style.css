@@ -383,6 +383,121 @@ section h2 {
   margin: 0.6rem 0 0;
 }
 
+/* ---------- account ---------- */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.nav-account-link {
+  color: var(--green-deep);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.nav-account-link:hover {
+  text-decoration: underline;
+}
+
+.account-section {
+  padding: 2rem 0 0.5rem;
+}
+
+.account-card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  padding: 1.4rem 1.6rem;
+  max-width: 420px;
+}
+
+.account-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.account-tab {
+  flex: 1;
+  border: 2px solid var(--green-light);
+  background: #fff;
+  color: var(--ink);
+  padding: 0.5rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.account-tab.active {
+  background: var(--green-deep);
+  border-color: var(--green-deep);
+  color: #fff;
+}
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.account-form input {
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid var(--cream-dark);
+  border-radius: 12px;
+  font-size: 0.92rem;
+  background: var(--cream);
+  color: var(--ink);
+}
+
+.account-form input:focus {
+  outline: none;
+  border-color: var(--green-mid);
+}
+
+.account-form .btn-primary {
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.account-error {
+  color: var(--coral-dark);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.account-profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+
+.account-email {
+  font-weight: 700;
+  color: var(--green-deep);
+}
+
+.account-logout {
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.account-saved {
+  font-size: 0.85rem;
+  color: var(--green-deep);
+  margin: 0.6rem 0 0;
+}
+
 /* ---------- result card ---------- */
 .result-card {
   margin-top: 1.6rem;

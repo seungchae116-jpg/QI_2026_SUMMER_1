@@ -14,11 +14,50 @@
 <header class="nav">
   <div class="nav-inner">
     <span class="logo">🥑 Avomatic</span>
-    <a class="nav-cta" href="#uploader">지금 판별하기</a>
+    <div class="nav-links">
+      <a class="nav-account-link" href="#account" id="navAccountLink">로그인</a>
+      <a class="nav-cta" href="#uploader">지금 판별하기</a>
+    </div>
   </div>
 </header>
 
 <main>
+  <section class="account-section" id="account">
+    <div class="account-card">
+      <div id="authLoggedOut">
+        <div class="account-tabs">
+          <button class="account-tab active" data-tab="login" type="button">로그인</button>
+          <button class="account-tab" data-tab="signup" type="button">회원가입</button>
+        </div>
+        <form id="loginForm" class="account-form">
+          <input type="email" id="loginEmail" placeholder="이메일" autocomplete="email" required />
+          <input type="password" id="loginPassword" placeholder="비밀번호" autocomplete="current-password" required />
+          <button type="submit" class="btn-primary">로그인</button>
+          <p class="account-error hidden" id="loginError"></p>
+        </form>
+        <form id="signupForm" class="account-form hidden">
+          <input type="text" id="signupName" placeholder="이름 (선택)" autocomplete="name" />
+          <input type="email" id="signupEmail" placeholder="이메일" autocomplete="email" required />
+          <input type="password" id="signupPassword" placeholder="비밀번호 (8자 이상)" autocomplete="new-password" required />
+          <button type="submit" class="btn-primary">회원가입</button>
+          <p class="account-error hidden" id="signupError"></p>
+        </form>
+      </div>
+
+      <div id="authLoggedIn" class="hidden">
+        <div class="account-profile">
+          <span class="account-email" id="profileEmail"></span>
+          <button class="account-logout" id="logoutBtn" type="button">로그아웃</button>
+        </div>
+        <div class="control-group">
+          <span class="control-label">내가 가장 좋아하는 아보카도 상태</span>
+          <div class="pill-group" id="favoriteStyleGroup"></div>
+          <p class="account-saved hidden" id="favoriteSaved">저장됐어요 ✓</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="hero">
     <div class="hero-text">
       <span class="eyebrow">사진 한 장으로 아는 숙성도</span>
@@ -190,6 +229,7 @@
   <p class="disclaimer">Avomatic은 외관상 숙성 단계를 추정하는 프로토타입이며, 실제 맛·당도를 측정하지 않습니다.</p>
 </footer>
 
+<script src="auth.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
