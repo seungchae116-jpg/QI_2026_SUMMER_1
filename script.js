@@ -1,10 +1,9 @@
 /*
- * Avomatic — 아보카도 숙성도 판별 데모
+ * Avomatic — 아보카도 숙성도 판별
  *
- * 여기서 쓰는 분류기는 실제 학습된 CNN이 아니라, 업로드한 사진의 색상 통계
- * (밝기, 녹색 비율)을 5개의 대표 프로토타입과 비교하는 경량 휴리스틱이다.
- * PRD가 근거로 삼는 Foods(2024) 논문/데이터셋의 "단계 -> 남은 일수 선형 관계"와
- * 보관 온도 계수만 실제 수치를 반영했고, 이미지 분류 자체는 데모용 근사치다.
+ * 분류는 Vertex AI에 배포된 실제 학습 모델(avocado-ripening-stage-model-v2)을
+ * 백엔드(/api/predict)를 통해 호출한다. 유통기한 계수는 Foods(2024) 논문의
+ * "단계 -> 남은 일수 선형 관계" 및 보관 온도 계수를 반영한다.
  */
 
 const STAGES = [
@@ -15,7 +14,6 @@ const STAGES = [
     desc: "아직 단단하고 짙은 녹색이에요. 서두르지 마세요.",
     storageAdvice: "실온에 두면 더 빨리 익어요. 빨리 먹고 싶다면 사과·바나나와 함께 종이봉투에 넣어보세요 (에틸렌 효과).",
     usage: "지금 슬라이스하면 아삭하고 뻑뻑해요. 기다렸다가 드세요.",
-    centroid: { brightness: 0.58, green: 0.40 },
     baselineDays: 3,
   },
   {
@@ -25,7 +23,6 @@ const STAGES = [
     desc: "녹색에서 갈색으로 넘어가는 중이에요. 거의 다 왔어요.",
     storageAdvice: "적기까지 얼마 남지 않았어요. 냉장 보관하면 속도를 늦출 수 있어요.",
     usage: "하루 이틀 뒤 슬라이스나 토스트용으로 좋아요.",
-    centroid: { brightness: 0.47, green: 0.37 },
     baselineDays: 1,
   },
   {
@@ -35,7 +32,6 @@ const STAGES = [
     desc: "살짝 눌러보면 부드럽게 들어가요. 지금이 적기의 시작이에요.",
     storageAdvice: "지금 안 드실 거라면 냉장 보관으로 적기를 늘리세요.",
     usage: "슬라이스, 토스트, 샐러드에 딱이에요.",
-    centroid: { brightness: 0.37, green: 0.335 },
     windowDays: 2,
   },
   {
@@ -45,7 +41,6 @@ const STAGES = [
     desc: "많이 부드러워졌고 향도 진해졌어요. 지금이 가장 맛있을 때예요.",
     storageAdvice: "지금 드시는 게 가장 좋아요. 남으면 냉장 보관하세요.",
     usage: "과카몰리, 스프레드, 딥에 최적이에요.",
-    centroid: { brightness: 0.27, green: 0.305 },
     windowDays: 1,
   },
   {
@@ -55,7 +50,6 @@ const STAGES = [
     desc: "표면이 많이 검고 매우 부드러워요. 갈변이 진행됐을 수 있어요.",
     storageAdvice: "더 이상 기다리지 마세요. 지금 바로 확인해보세요.",
     usage: "내부를 확인해서 갈변이 심하지 않으면 과카몰리로, 심하면 폐기하세요.",
-    centroid: { brightness: 0.16, green: 0.29 },
     baselineDays: 0,
   },
 ];
@@ -120,65 +114,32 @@ function loadImage(file) {
 }
 
 // ---------- analyze ----------
-analyzeBtn.addEventListener("click", () => {
+analyzeBtn.addEventListener("click", async () => {
   if (!hasImage) return;
   analyzeBtn.disabled = true;
   analyzeStatus.textContent = "🥑 이미지를 분석하는 중...";
 
-  setTimeout(() => {
-    const metrics = analyzeImageColors(previewImg);
-    const { stageIndex, confidence } = classify(metrics);
-    const stage = STAGES[stageIndex];
-    const lightingIssue = metrics.brightness < 0.14 || metrics.brightness > 0.9;
+  try {
+    const { content, mimeType } = dataUrlToBase64(previewImg.src);
+    const { stageIndex, confidence } = await apiFetch("/api/predict", {
+      method: "POST",
+      body: JSON.stringify({ content, mimeType }),
+    });
 
-    renderResult(stage, stageIndex, confidence, lightingIssue);
-
-    analyzeBtn.disabled = false;
+    renderResult(STAGES[stageIndex], stageIndex, confidence);
     analyzeBtn.textContent = "🔄 다시 분석하기";
     analyzeStatus.textContent = "";
-  }, 700);
+  } catch (err) {
+    analyzeStatus.textContent = `⚠️ ${err.message}`;
+  } finally {
+    analyzeBtn.disabled = false;
+  }
 });
 
-function analyzeImageColors(imgEl) {
-  const size = 80;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(imgEl, 0, 0, size, size);
-
-  const { data } = ctx.getImageData(0, 0, size, size);
-  let r = 0, g = 0, b = 0, count = 0;
-  for (let i = 0; i < data.length; i += 4) {
-    r += data[i];
-    g += data[i + 1];
-    b += data[i + 2];
-    count++;
-  }
-  r /= count;
-  g /= count;
-  b /= count;
-
-  const brightness = (r + g + b) / 3 / 255;
-  const green = g / (r + g + b + 1e-6);
-  return { brightness, green };
-}
-
-function classify(metrics) {
-  const distances = STAGES.map((stage) => {
-    const db = metrics.brightness - stage.centroid.brightness;
-    const dg = (metrics.green - stage.centroid.green) * 2.5;
-    return Math.sqrt(db * db + dg * dg);
-  });
-
-  const minDist = Math.min(...distances);
-  const stageIndex = distances.indexOf(minDist);
-
-  const scores = distances.map((d) => Math.exp(-d * 12));
-  const total = scores.reduce((a, b) => a + b, 0);
-  const confidence = scores[stageIndex] / total;
-
-  return { stageIndex, confidence };
+function dataUrlToBase64(dataUrl) {
+  const [header, base64] = dataUrl.split(",");
+  const mimeType = header.match(/data:(.*?);base64/)?.[1] || "image/jpeg";
+  return { content: base64, mimeType };
 }
 
 // ---------- ETA / result rendering ----------
@@ -208,7 +169,7 @@ function computeEta(stageIndex, coef) {
   return { text: `${days}일 후(${dateLabel})가 적기예요` };
 }
 
-function renderResult(stage, stageIndex, confidence, lightingIssue) {
+function renderResult(stage, stageIndex, confidence) {
   document.getElementById("stageEmoji").textContent = stage.emoji;
   document.getElementById("stageLabel").textContent = stage.label;
   document.getElementById("stageDesc").textContent = stage.desc;
@@ -226,12 +187,9 @@ function renderResult(stage, stageIndex, confidence, lightingIssue) {
 
   const warningEl = document.getElementById("lowConfidenceWarning");
   const warningText = document.getElementById("warningText");
-  const lowConfidence = confidence < 0.55;
-  if (lowConfidence || lightingIssue) {
+  if (confidence < 0.55) {
     warningEl.classList.remove("hidden");
-    warningText.textContent = lightingIssue
-      ? "조명이 너무 어둡거나 밝아서 판별이 부정확할 수 있어요. 자연광 아래에서 아보카도 전체가 나오도록 다시 찍어보세요."
-      : "신뢰도가 낮아요. 다른 각도나 조명에서 다시 찍어보면 더 정확해질 수 있어요.";
+    warningText.textContent = "신뢰도가 낮아요. 자연광 아래에서 아보카도 전체가 나오도록 다시 찍어보면 더 정확해질 수 있어요.";
   } else {
     warningEl.classList.add("hidden");
   }

@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(cors({ origin: process.env.ALLOWED_ORIGIN || '*' }));
 
 const pool = new Pool({
@@ -40,6 +40,30 @@ function requireAuth(req, res, next) {
 
 app.get('/healthz', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+app.post('/api/predict', requireAuth, async (req, res) => {
+  const { content, mimeType } = req.body;
+  if (!content) {
+    return res.status(400).json({ error: 'image content is required' });
+  }
+  try {
+    const proxyRes = await fetch(`${process.env.PREDICT_PROXY_URL}/predict`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-shared-secret': process.env.PREDICT_PROXY_SECRET,
+      },
+      body: JSON.stringify({ content, mimeType }),
+    });
+    const data = await proxyRes.json();
+    if (!proxyRes.ok) {
+      return res.status(502).json({ error: data.error || 'prediction failed' });
+    }
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/auth/signup', async (req, res) => {
